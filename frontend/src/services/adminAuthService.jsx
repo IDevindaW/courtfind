@@ -185,5 +185,29 @@ export const deleteSport = async (token, sportId) => {
         throw error;
     }
 };
+
+export const getAllPendingArenas = async (token) => {
+    try {
+        const response = await api.get("/arena/pending-for-admin", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching pending arenas:", error);
+        throw error;
+    }
+};
+
+export const updateArenaStatus = async (arenaId, status, declinedReason, token) => {
+    try {
+        const response = await api.put(`/arena/update-status/${arenaId}`, { declinedReason, status }, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating arena status:", error);
+        throw error;
+    }
+};
   
 

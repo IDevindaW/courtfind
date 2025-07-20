@@ -52,20 +52,15 @@ const AdminReviews = () => {
                                             <h6>Arena Name: </h6>
                                             {review.arenaName}
                                         </Card.Title>
-                                        <div>
-                                            {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
-                                        </div>
-                                        <Card.Subtitle className="mt-2 text-info">
-                                            by {review.playerName}
-                                        </Card.Subtitle>
-                                        <Card.Text className="mt-2">
-                                            {review.comment}
+                                        <Card.Text>
+                                            <h6>Average Rating: </h6>
+                                            {review.averageRating ? 
+                                            <div>
+                                                {"★".repeat(review.averageRating)}{"☆".repeat(5 - review.averageRating)}
+                                            </div> 
+                                            : "No ratings yet"}
                                         </Card.Text>
-                                    </Col>
-                                    <Col md={4} className="text-md-end text-start mt-3 mt-md-0">
-                                        <small>
-                                            {new Date(review.reviewDate).toLocaleDateString()}
-                                        </small>
+        
                                     </Col>
                                 </Row>
                             </Card.Body>

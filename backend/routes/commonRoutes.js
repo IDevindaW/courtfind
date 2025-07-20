@@ -8,6 +8,7 @@ const { getArenaByRating } = require('../controllers/arenaController');
 const { getCourtsForBooking } = require('../controllers/courtController');
 const { getBookingTimesByCourtId } = require('../controllers/bookingController');
 const playerReviewController = require("../controllers/playerReviewController");
+const loginActivityController = require('../controllers/loginActivityController');
 
 const router = express.Router();
 

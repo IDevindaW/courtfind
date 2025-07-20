@@ -11,6 +11,7 @@ const sportRoutes = require("./sportRoutes");
 const courtRoutes = require("./courtRoutes");  
 const stripeRoutes = require("./stripeRoutes"); // Stripe routes
 const bookingRoutes = require("./bookingRoutes"); // Booking routes
+const reportRoutes = require("./reportRoutes"); // Report routes
 
 
 router.use("/auth", authRoutes); // Authentication routes (login, register, etc.)
@@ -23,6 +24,8 @@ router.use("/sport", sportRoutes); // Sport routes
 router.use("/courts", courtRoutes); // Sport routes
 router.use("/stripe", stripeRoutes); // Stripe payment routes
 router.use("/booking", bookingRoutes); // Booking routes
+router.use("/report", reportRoutes); // Booking routes
+
 
 
 

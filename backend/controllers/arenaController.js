@@ -143,3 +143,90 @@ exports.getArenaByRating = async (req, res) => {
         return res.status(200).json({ message: "Arena and associated courts deleted successfully." });
     });
 };
+
+exports.getPendingArenas = (req, res) => {
+    const userId = req.user.userId;
+    arena.getPendingArenas( userId, (err, results) => {
+        if (err) {
+            console.error("Error fetching pending arenas:", err);
+            return res.status(500).json({ message: "Failed to fetch pending arenas." });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "No pending arenas found." });
+        }
+
+        return res.status(200).json(results);
+    });
+};
+
+exports.getPendingArenasForAdmin = (req, res) => {
+    arena.getPendingArenasForAdmin((err, results) => {
+        if (err) {
+            console.error("Error fetching pending arenas for admin:", err);
+            return res.status(500).json({ message: "Failed to fetch pending arenas." });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "No pending arenas found." });
+        }
+
+        return res.status(200).json(results);
+    }
+    );
+};
+
+exports.updateArenaStatus = (req, res) => {
+    const { arenaId } = req.params;
+    const { declinedReason, status } = req.body;
+
+    if (!status) {
+        return res.status(400).json({ message: "Arena status is required." });
+    }
+
+    arena.updateArenaStatus(arenaId, declinedReason, status, (err, result) => {
+        if (err) {
+            console.error("Error updating arena status:", err);
+            return res.status(500).json({ message: "Failed to update arena status." });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Arena not found." });
+        }
+
+        return res.status(200).json({ message: "Arena status updated successfully." });
+    });
+};
+
+exports.getPricingForNewArena = (req, res) => {
+    arena.getPricingForNewArena((err, results) => {
+        if (err) {
+            console.error("Error fetching pricing for new arena:", err);
+            return res.status(500).json({ message: "Failed to fetch pricing." });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "No pricing information found." });
+        }
+
+        return res.status(200).json(results);
+    });
+};
+
+exports.getArenasForOwnerWithStatus = (req, res) => {
+    const ownerId = req.user.userId;
+
+    arena.getArenasForOwnerWithStatus(ownerId, (err, results) => {
+        if (err) {
+            console.error("Error fetching arenas for owner:", err);
+            return res.status(500).json({ message: "Failed to fetch arenas." });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "No arenas found for this owner." });
+        }
+        console.log("Arenas with status for owner:", results); // Debugging line
+
+        return res.status(200).json(results);
+    });
+};

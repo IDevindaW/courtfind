@@ -120,12 +120,12 @@ const AddCourts = () => {
       alert("All courts created successfully!");
       setCourts([]);
       resetForm();
-
+      
     // Modified navigation logic
     setTimeout(() => {
       if (arenaId && location.state?.arenaId) {
         // Came from Arena Management - return to manage arenas
-        navigate("/manage-arenas");
+        navigate("/owner-requests");
       } else {
         // Came from Add Arena flow - go to owner dashboard
         navigate("/owner-dashboard");

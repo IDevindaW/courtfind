@@ -2,7 +2,16 @@ const db = require("../config/db");
 
 const review={
     getReviewData: (callback) => {
-        const query = "SELECT a.name AS arenaName, CONCAT(u.firstName, ' ', u.lastName) AS playerName, r.rating, r.comment, r.created_at AS reviewDate FROM reviews r JOIN arenas a ON r.arenaId = a.arenaId JOIN users u ON r.playerId = u.userId ORDER BY r.created_at DESC";
+        const query = `SELECT 
+                        a.arenaId,
+                        a.name AS arenaName,
+                        AVG(r.rating) AS averageRating
+                    FROM 
+                        arenas a
+                        LEFT JOIN reviews r ON a.arenaId = r.arenaId
+                    GROUP BY 
+                        a.arenaId, a.name;
+                    `;
         db.query(query, callback);
     }
 }

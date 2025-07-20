@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Container, Row, Col, Card, Button, Spinner } from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import { generateInvoice, downloadInvoice, getOwnerIdForBooking, updatePaymentsTable } from "../services/bookingService";
+import { generateInvoice, downloadInvoice, getOwnerIdAndArenaIdForBooking, updatePaymentsTable } from "../services/bookingService";
 
 const PaymentSuccess = () => {
-  const { bookingId, total } = useParams();
+  const { bookingId, absoluteAmount } = useParams();
   const [invoiceFilename, setInvoiceFilename] = useState("");
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const token = localStorage.getItem("authToken");
+  const [ownerId, setOwnerId] = useState("");
+  const [arenaId, setArenaId] = useState("");
+  const hasRun = useRef(false);
 
   useEffect(() => {
     const fetchInvoice = async () => {
@@ -27,19 +31,24 @@ const PaymentSuccess = () => {
   }, [bookingId]);
 
   useEffect(() => {
+    if (hasRun.current) return; // Prevent running this effect multiple times
     const updatePaymentStatus = async () => {
       try {
-        const ownerId = await getOwnerIdForBooking(bookingId);
-        const numericTotal = parseFloat(total);
+        const res = await getOwnerIdAndArenaIdForBooking(bookingId);
+        const ownerId = res.ownerId;
+        const arenaId = res.arenaId;
+        console.log("Owner ID:", ownerId, "Arena ID:", arenaId);
+        const numericTotal = parseFloat(absoluteAmount);
         console.log("Owner ID:", ownerId, "Total Amount:", numericTotal);
-        const response = await updatePaymentsTable(bookingId, ownerId, numericTotal);
+        const response = await updatePaymentsTable(bookingId, ownerId, arenaId, numericTotal,token);
         console.log("Payment status updated:", response);
       } catch (err) {
         console.error("Error updating payment status:", err);
       }
     }
     updatePaymentStatus();
-  }, [bookingId, total]);
+    hasRun.current = true; // Set flag to true after running
+  }, [bookingId, absoluteAmount]);
 
   const handleDownload = async () => {
     try {

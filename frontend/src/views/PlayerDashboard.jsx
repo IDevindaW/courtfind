@@ -33,6 +33,14 @@ const PlayerDashboard = () => {
         }
     };
 
+    const getPaymentStatusVariant = (payment_status) => {
+        switch (payment_status) {
+            case 'Paid': return 'success';
+            case 'Pending': return 'danger';
+            default: return 'dark';
+        }
+    };
+
     return (
         <Container className="min-vh-100 d-flex flex-column  align-items-center">
             <Row className="w-100" text-center>
@@ -62,12 +70,21 @@ const PlayerDashboard = () => {
                                     </Col>
                                     <Col md={9}>
                                         <Card.Body>
-                                            <Card.Title className="d-flex justify-content-between">
+                                            <div className="position-absolute top-0 end-0 p-2 d-flex flex-column align-items-end gap-1">
+                                            <Badge bg={getStatusVariant(booking.status)}>
+                                                {booking.status.toUpperCase()}
+                                            </Badge>
+                                            <Badge bg={getPaymentStatusVariant(booking.payment_status)}>
+                                                Payment {booking.payment_status}
+                                            </Badge>
+                                            </div>
+
+                                            <Card.Title className="align-items-right d-flex justify-content-between">
                                                 {booking.name}
-                                                <Badge bg={getStatusVariant(booking.status)}>
-                                                    {booking.status.toUpperCase()}
-                                                </Badge>
                                             </Card.Title>
+                                            <Card.Subtitle className="mb-2 text-muted">
+                                                {booking.courtName}
+                                            </Card.Subtitle>
                                             <Card.Text>
                                                 <strong>Date:</strong> {booking.booking_date.split('T')[0]}<br />
                                                 <strong>Time:</strong> {booking.start_time} - {booking.end_time}

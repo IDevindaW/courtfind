@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Nav } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { FaTachometerAlt, FaUser, FaCalendarAlt, FaPlusCircle, FaChartLine, FaCog } from "react-icons/fa";
+import { FaCodePullRequest } from "react-icons/fa6";
 import { getOwnerProfile, getProfileImage } from "../services/ownerAuthService";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -37,8 +38,9 @@ const Sidebar = () => {
     const menuItems = [
         { path: "/owner-dashboard", label: "Dashboard", icon: <FaTachometerAlt /> },
         { path: "/arena-bookings", label: "Arena Bookings", icon: <FaCalendarAlt /> },
-        { path: "/manage-arenas", label: "My Arenas", icon: <FaUser /> },
+        { path: "/manage-arenas", label: "Manage My Arenas", icon: <FaUser /> },
         { path: "/add-arena", label: "Add Arena", icon: <FaPlusCircle /> },
+        { path: "/owner-requests", label: "Requests", icon: <FaCodePullRequest /> },
         { path: "/my-profit", label: "My Profits", icon: <FaChartLine /> },
         { path: "/owner-profile", label: "Account Settings", icon: <FaCog /> },
     ];
@@ -70,7 +72,7 @@ const Sidebar = () => {
             .sidebar { 
                 background-color: rgba(206, 221, 251, 1); /* Light blue */
                 padding: 15px;
-                height: 70vh;
+                height: 80vh;
                 width: 250px;
                 display: flex-start;
                 flex-direction: column;

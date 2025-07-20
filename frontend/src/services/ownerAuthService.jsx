@@ -47,8 +47,15 @@ export const getDashboardStats = async (token) => {
     return response.data;
 };
 
-export const getIncomeOverview = async (token) => {
-    const response = await api.get("/owner/dashboard/income-overview", {
+export const getIncomeOverview = async (token, year) => {
+    const response = await api.get(`/owner/dashboard/income-overview/${year}`,{ 
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
+export const getTotalIncomeForYear = async (token, year) => {
+    const response = await api.get(`/owner/dashboard/get-total-income-for-year/${year}`,{ 
         headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -114,12 +121,12 @@ export const getCourtsByArenaId = async (token, arenaId) => {
 export const getFilteredArenaBookings = async (token, filters) => {
     try {
         const { arenaId, courtName } = filters;
-        console.log("Filter parameters initially:", { arenaId, courtName });
+        //console.log("Filter parameters initially:", { arenaId, courtName });
         const queryParams = new URLSearchParams({
             arenaId: arenaId,
             ...(courtName !== "all" && courtName ? { courtName } : {}),
         });
-        console.log("Filter parameters:", queryParams.toString());
+        //console.log("Filter parameters:", queryParams.toString());
 
         const response = await api.get(`/owner/arena-bookings/filter/${arenaId}/${courtName}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -203,3 +210,36 @@ export const getArenaCourtYearlyData = async (arenaId, year) => {
     });
     return response.data;
 };
+
+// Fetch top earning courts for last 3 months
+export const fetchTopEarningCourtsLast3Months = async (token) => {
+  const response = await api.get("/owner/top-courts", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+// Fetch player behavior (new/repeat) analysis
+export const fetchPlayerBehaviorAnalysis = async (token) => {
+  const response = await api.get("/owner/player-activity", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const getArenaRevenueDistribution = async (token) => {
+  const res = await api.get("/owner/arena-revenue-distribution", {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data;
+};
+
+
+export const fetchMostBookedCourts = async (token) => {
+  const response = await api.get('/owner/dashboard/most-booked-courts', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+

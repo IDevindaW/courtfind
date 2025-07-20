@@ -143,21 +143,24 @@ const ArenaManagement = () => {
     }
   };
 
-  // Delete court
-  const handleDeleteCourt = async (courtId) => {
-    if (window.confirm("Are you sure you want to delete this court?")) {
-      try {
-        await deleteCourt(courtId, authToken);
-        setArenas(arenas.map(arena => ({
-          ...arena,
-          courts: arena.courts.filter(court => court.courtId !== courtId)
-        })));
-      } catch (err) {
-        console.error("Error deleting court:", err);
-        alert("Failed to delete court");
-      }
+ const handleDeleteCourt = async (courtId) => {
+  if (window.confirm("Are you sure you want to delete this court?")) {
+    try {
+      await deleteCourt(courtId, authToken);
+      setArenas(arenas.map(arena => ({
+        ...arena,
+        courts: arena.courts.filter(court => court.courtId !== courtId)
+      })));
+      setError(""); // clear any previous error
+    } catch (err) {
+      console.error("Error deleting court:", err);
+      const message = err.response?.data?.message || "Failed to delete court";
+      setError(message); // THIS is what triggers your existing <Alert>
     }
-  };
+  }
+};
+
+
 
   // Navigate to add court page with arena ID
   const handleAddCourt = (arenaId) => {

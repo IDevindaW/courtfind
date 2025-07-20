@@ -19,6 +19,8 @@ import {
 } from "react-icons/fa";
 
 import { RiContactsLine } from "react-icons/ri";
+import { FaCodePullRequest } from "react-icons/fa6";
+
 
 
 import { NavLink } from "react-router-dom";
@@ -95,6 +97,10 @@ const AdminLayout = ({ children }) => {
     "/admin-players": {
       title: "Players",
       icon: <FaUserAlt />,
+    },
+    "/admin-requests": {
+      title: "Arena Requests",
+      icon: <FaCodePullRequest />,
     },
     "/admin-profit": {
       title: "Profit Analysis",
@@ -237,6 +243,11 @@ const AdminLayout = ({ children }) => {
             to="/admin-players"
             icon={<FaUserAlt />}
             label="Players"
+          />
+          <SidebarLink
+            to="/admin-requests"
+            icon={<FaCodePullRequest />}
+            label="Arena Requests"
           />
           <SidebarLink
             to="/admin-profit"

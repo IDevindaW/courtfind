@@ -52,39 +52,42 @@ exports.downloadInvoice = (req, res) => {
   });
 };
 
-exports.getOwnerIdForBooking = (req, res) => {
+exports.getOwnerIdAndArenaIdForBooking = (req, res) => {
   const bookingId = req.params.bookingId;
 
   if (!bookingId) {
     return res.status(400).json({ error: "Booking ID is required" });
   }
 
-  PlayerBooking.getOwnerIdForBooking(bookingId, (err, ownerId) => {
+  PlayerBooking.getOwnerIdForBooking(bookingId, (err, result) => {
     if (err) {
       console.error("Error fetching owner ID:", err);
       return res.status(500).json({ error: "Failed to fetch owner ID" });
     }
 
-    if (!ownerId) {
-      return res.status(404).json({ error: "Owner not found for this booking" });
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Booking not found" });
     }
-    console.log("Owner ID fetched successfully:", ownerId);
-
-    res.status(200).json({ ownerId });
+    const ownerId = result.ownerId;
+    const arenaId = result.arenaId;
+    console.log("Owner ID and Arena ID fetched successfully:", ownerId, arenaId);
+    // Return both ownerId and arenaId
+    res.status(200).json({ ownerId, arenaId });
   });
 };
 
 exports.updatePaymentsTable = (req, res) => {
-  const { bookingId, ownerId, total } = req.body;
+  const { bookingId, ownerId, arenaId, total } = req.body;
+  const playerId = req.user.userId;
 
   if (!bookingId || !ownerId || !total) {
     return res.status(400).json({ error: "Booking ID, Owner ID, and Total are required" });
   }
   const paymentDesc = `Payment for booking ${bookingId}`;
   const payment_method = "Stripe";
-  console.log("Updating payments table for booking:", bookingId, "Owner ID:", ownerId, "Total:", total);  
+  console.log("Updating payments table for booking:", bookingId, "Owner ID:", ownerId, "Total:", total, "arenaId:", arenaId, "playerId:", playerId);  
 
-  PlayerBooking.updatePaymentsTable(bookingId, paymentDesc, total, payment_method, ownerId,  (err) => {
+  PlayerBooking.updatePaymentsTable(bookingId, paymentDesc, total, payment_method, ownerId, arenaId, playerId,  (err) => {
     if (err) {
       console.error("Error updating payments table:", err);
       return res.status(500).json({ error: "Failed to update payments table" });

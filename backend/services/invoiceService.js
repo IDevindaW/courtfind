@@ -14,3 +14,17 @@ exports.generateInvoicePDF = async (bookingData, outputPath) => {
     });
   });
 };
+
+
+exports.generateArenaInvoicePDF = async (arenaData, outputPath) => {
+  const templatePath = path.join(__dirname, "../views/arenaInvoiceTemplate.ejs");
+  const html = await ejs.renderFile(templatePath, { arena: arenaData });
+
+  return new Promise((resolve, reject) => {
+    pdf.create(html).toFile(outputPath, (err, res) => {
+      if (err) reject(err);
+      else resolve(res.filename);
+    });
+  });
+};
+

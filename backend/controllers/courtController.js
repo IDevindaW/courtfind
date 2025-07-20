@@ -94,7 +94,12 @@ exports.uploadCourtImages = (req, res) => {
     
     court.deleteCourt(courtId, (err, result) => {
         if (err) {
-        return res.status(500).json({ message: "Failed to delete court", error: err.message });
+            if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+            return res.status(400).json({
+            message: "Cannot delete court. It has existing bookings."
+            });
+        }
+       // return res.status(500).json({ message: "Failed to delete court", error: err.message });
         }
         if (result.affectedRows === 0) {
         return res.status(404).json({ message: "Court not found" });

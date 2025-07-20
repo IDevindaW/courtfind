@@ -50,6 +50,8 @@ const CheckoutForm = () => {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [cardBrand, setCardBrand] = useState("default");
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
+
 
   useEffect(() => {
     if (total) {
@@ -107,7 +109,8 @@ const CheckoutForm = () => {
         setMessage({ type: "warning", text: "Payment requires additional action." });
       } else if (result.paymentIntent.status === "succeeded") {
         setMessage({ type: "success", text: "✅ Payment successful! Thank you." });
-        setTimeout(() => navigate(`/payment-success/${bookingId}/${absoluteAmount}`), 1000);
+        setPaymentCompleted(true);
+        setTimeout(() => navigate(`/payment-success/${bookingId}/${absoluteAmount}`), 2000);
       }
     } catch (err) {
       setMessage({ type: "danger", text: "❌ Server error: " + err.message });
@@ -188,7 +191,7 @@ const CheckoutForm = () => {
                   variant="primary"
                   type="submit"
                   className="w-100 rounded-pill"
-                  disabled={!stripe || loading}
+                  disabled={!stripe || loading || paymentCompleted}
                 >
                   {loading ? <Spinner size="sm" animation="border" /> : `Pay LKR ${absoluteAmount || 0}`}
                 </Button>

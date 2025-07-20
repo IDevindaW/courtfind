@@ -15,13 +15,14 @@ import Chatbot from "./components/Chatbot";
 import ExploreNow from "./views/ExploreNow";
 import ViewingPage from "./views/sportViewing";
 import Homepage from "./views/Home";
+import ViewReviews from "./views/ViewReviews";
+import AboutUs from "./views/aboutUs";
 
 // Player Views
 import PlayerDashboard from "./views/PlayerDashboard";
 import PlayerProfile from "./views/PlayerProfile";
 import PlayerChangePassword from "./views/PlayerChangePassword";
 import PlayerInvoice from "./views/PlayerInvoice";
-import ViewReviews from "./views/ViewReviews";
 import FeedbackPage from "./views/Feedback";
 import PaymentPage from "./views/paymentPage";
 import PaymentSuccess from "./views/PaymentSuccess";
@@ -37,6 +38,11 @@ import ArenaManagement from "./views/ManageArenas";
 import OwnerArenaBookings from "./views/OwnerArenaBookings";
 import MyProfitPage from "./views/MyProfit";
 import ProfitCourtwise from "./views/MyProfitCourtwise";
+import ownerRequests from "./views/ownerRequests";
+import arenaPaymentPage from "./views/arenaPayments";
+import arenaPaymentSuccess from "./views/arenaPaymentSuccess";
+
+
 
 // Admin Views
 import AdminDashboard from "./views/AdminDashboard";
@@ -48,6 +54,7 @@ import AdminSports from "./views/AdminSports";
 import AdminProfit from "./views/AdminProfit";
 import AdminReviews from "./views/AdminReviews";
 import AdminProfile from "./views/AdminProfile";
+import AdminRequests from "./views/AdminRequests";
 
 
 // Helper component for wrapping routes with layout
@@ -70,7 +77,8 @@ const commonRoutes = [
   { path: "/explore-now", element: ExploreNow },
   { path: "/view/:courtId", element: ViewingPage },
   { path: "/home", element: Homepage },
-
+  { path: "/reviews/:courtId", element: ViewReviews },
+  { path: "/about", element: AboutUs },
 ];
 
 const playerRoutes = [
@@ -78,7 +86,6 @@ const playerRoutes = [
   { path: "/player-profile", element: PlayerProfile },
   { path: "/player-change-password", element: PlayerChangePassword },
   { path: "/player-invoices",element: PlayerInvoice }, 
-  { path: "/reviews/:courtId", element: ViewReviews },
   { path: "/feedback/:courtId", element: FeedbackPage},
   { path: "/payment/:bookingId/:total", element: PaymentPage },
   { path: "/payment-success/:bookingId/:absoluteAmount", element: PaymentSuccess }, 
@@ -95,6 +102,9 @@ const ownerRoutes = [
   { path: "/arena-bookings", element: OwnerArenaBookings },
   { path: "/my-profit", element: MyProfitPage},
   { path: "/courtwise-profit", element: ProfitCourtwise},
+  { path: "/owner-requests", element: ownerRequests },
+  { path: "/arena-payment/:arenaId/:price", element: arenaPaymentPage },
+  { path: "/arenaPayment-success/:arenaId/:price", element: arenaPaymentSuccess },
 
 ];
 
@@ -107,7 +117,8 @@ const adminRoutes = [
   { path: "/admin-sports", element: AdminSports },
   { path: "/admin-messages", element: AdminMessagesPage },
   { path: "/admin-reviews", element: AdminReviews },
-  { path: "/admin-profile", element: AdminProfile }
+  { path: "/admin-profile", element: AdminProfile },
+  { path: "/admin-requests", element: AdminRequests },
 ];
 
 function App() {

@@ -8,21 +8,27 @@ import { FaMapMarkerAlt, FaPhoneAlt, FaStar } from 'react-icons/fa';
 import { MdOutlineSportsScore } from "react-icons/md";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from 'react-router-dom';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { motion } from "framer-motion";
+
 
 
 const ViewingPage = () => {
   const { courtId } = useParams();
   const [court, setCourt] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
   const [duration, setDuration] = useState('');
   const availability = court?.availability || {};
+
   const isDayClosed = selectedDate && (() => {
     const dayName = new Date(selectedDate).toLocaleString('en-US', { weekday: 'long' });
     const dayAvail = availability[dayName];
     return !dayAvail || !dayAvail.open || !dayAvail.close;
   })();
+
   const { authToken } = useAuth();
   const { isAuth, userRole } = useAuth();
   const navigate = useNavigate();
@@ -31,18 +37,27 @@ const ViewingPage = () => {
   // State for review statistics
   const [reviewStats, setReviewStats] = useState([]);
   const [averageRating, setAverageRating] = useState(0.0);
+
   const handleStartTimeChange = (e) => {
     const time = e.target.value;
     setStartTime(time);
     setSelectedTime(time);
   };
 
+  function convertToYMD(dateString) {
+  // Assumes input is in 'DD/MM/YYYY' format
+  const [day, month, year] = dateString.split('/');
+  return `${year}/${month}/${day}`;
+}
 
   //To fetch the booked times in a selected date
   useEffect(() => {
   const fetchBookedTimes = async () => {
     if (!selectedDate || !courtId) return;
-    const response = await getBookingTimesByCourtId(courtId, selectedDate);
+    const formattedDate = selectedDate.toLocaleDateString(); 
+    // Convert date to YYYY-MM-DD format
+    const dateParts = convertToYMD(formattedDate);
+    const response = await getBookingTimesByCourtId(courtId, dateParts);
     if (Array.isArray(response)) {
       setBookedSlots(response);
     } else {
@@ -97,7 +112,7 @@ const ViewingPage = () => {
       try {
         const statsData = await gerReviewStatsWithoutAuth(courtId);
         console.log("Review stats fetched:", statsData);
-        setReviewStats(statsData.total_reviews || 0);
+        setReviewStats(statsData);
         const avgData = await getAverageRatingByCourtWithoutAuth(courtId);
         console.log("Average rating fetched:", avgData);
         setAverageRating(avgData.averageRating || 0.0);
@@ -117,13 +132,16 @@ const ViewingPage = () => {
   }
     if (!selectedDate || !selectedTime || !duration) return;
 
+    const date = selectedDate.toLocaleDateString();
+    const dateParts = convertToYMD(date);
+
     const startHour = parseInt(selectedTime.split(':')[0]);
     const endHour = startHour + parseInt(duration);
     const endTime = `${endHour}:00`;
 
     const bookingData = {
       courtId: court.courtId,
-      booking_date: selectedDate,
+      booking_date: dateParts,
       start_time: selectedTime,
       end_time: endTime,
       total_price: court.hourly_rate * parseInt(duration),
@@ -167,11 +185,7 @@ const ViewingPage = () => {
 };
 // Handle viewing reviews
 const handleViewReviews = () => {
-    if (isLoggedInPlayer()) {
       navigate(`/reviews/${courtId}`);
-    } else {
-      navigate('/login');
-    }
   };
 
   // Handle logging in as a player
@@ -188,116 +202,128 @@ const handleViewReviews = () => {
   return (
     <Container className="my-5 px-5">
       <style>{`
-      .timeline-bar {
-        display: flex;
-        border: 1px solid #ccc;
-        overflow: hidden;
-        border-radius: 5px;
-      }
-      .timeline-slot {
-        flex: 1;
-        min-width: 60px;
-        height: 40px;
-        text-align: center;
-        line-height: 40px;
-        color: white;
-        font-weight: bold;
-        border-right: 1px solid #fff;
-      }
-      .timeline-slot:last-child {
-        border-right: none;
-      }
-      .booked {
-        background-color: red;
-      }
-      .available {
-        background-color: green;
-      }
-    `}</style>
+        .timeline-bar {
+          display: flex;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          overflow: hidden;
+          margin-top: 10px;
+        }
+        .timeline-slot {
+          flex: 1;
+          min-width: 60px;
+          height: 40px;
+          text-align: center;
+          line-height: 40px;
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: #fff;
+          border-right: 1px solid #fff;
+        }
+        .timeline-slot:last-child {
+          border-right: none;
+        }
+        .booked {
+          background-color: #dc3545;
+        }
+        .available {
+          background-color: #28a745;
+        }
+        .booking-summary-card {
+          border-left: 5px solid #0d6efd;
+          padding: 1rem;
+          background-color: #f8f9fa;
+        }
+        .modern-card {
+          border-radius: 15px;
+          overflow: hidden;
+          border: none;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+      `}</style>
+
       <h2>{court.arenaName} <br/> {court.courtName}</h2>
       <p>{court.city}, {court.country}</p>
-
       <Row className="mb-4">
         <Col md={6}>
-          <Card>          
-            {court.images && court.images.length > 0 ? (
-                <Carousel>
-                {court.images.map((img, index) => (
-                    <Carousel.Item key={index}>
+          <Card className="modern-card">
+            {court.images?.length > 0 ? (
+              <Carousel indicators={false}>
+                {court.images.map((img, idx) => (
+                  <Carousel.Item key={idx}>
                     <img
-                        className="d-block w-100"
-                        src={`http://localhost:8000/${img}`}
-                        alt={`Court image ${index + 1}`}
-                        style={{ height: '400px', objectFit: 'cover' }}
+                      className="d-block w-100"
+                      src={`http://localhost:8000/${img}`}
+                      alt={`Court image ${idx + 1}`}
+                      style={{ height: '400px', objectFit: 'cover', borderRadius: '15px' }}
                     />
-                    </Carousel.Item>
+                  </Carousel.Item>
                 ))}
-                </Carousel>
+              </Carousel>
             ) : (
-                <Card.Img variant="top" src="/default-court.jpg" />
+              <Card.Img variant="top" src="/default-court.jpg" />
             )}
           </Card>
         </Col>
+
         <Col md={6}>
-        <Card className="shadow-sm">
-          <Card.Body  className='text-center'>
-          <h3>Venue Information</h3>
-          <p><strong> About: </strong>{court.description}</p>
-          <p><FaMapMarkerAlt /><strong> Address:</strong> {court.city}, {court.country}</p>
-          <p><FaPhoneAlt /><strong> Call Us: </strong> {court.mobile}</p>
-          <div>
-            <h2>{averageRating}<FaStar className="text-warning" /></h2>
-            <h5>Total Reviews: {reviewStats.total_reviews}</h5>
-            <Button variant="link" style={{
-                      cursor: isLoggedInPlayer() ? 'pointer' : 'not-allowed',
-                      color: isLoggedInPlayer() ? '#007bff' : '#6c757d',
-                    }}
-                    onClick={handleViewReviews} className="text-decoration-none">
-            <FaStar />
-              {isLoggedInPlayer() ? ' Add or View Reviews' : ' Login to Add or View Reviews'}
-            </Button>
-          </div>
-          </Card.Body>
-          
-          <Card.Footer className="text-center">
-          <h3>Court Details</h3>
-          <p><strong>Sport: </strong> 
-            <span className="badge bg-danger text-white d-inline-flex align-items-center px-2 py-1" style={{ fontSize: "1rem" }}>
-              <MdOutlineSportsScore className="me-1" /> {court.sport}
-            </span>
-          </p>
-          <div className=" badge bg-primary text-white p-3 rounded shadow-sm my-3">
-            <p className="mb-0 fs-5">
-              <strong>Price:</strong> {court.hourly_rate} LKR / Hr
-            </p>
-          </div>
-          <p><strong>Size:</strong> {court.size} Square Feet</p>
-          </Card.Footer>
-        </Card>
+          <Card className="modern-card">
+            <Card.Body className="text-center">
+              <h3 className="fw-bold mb-3">{court.arenaName} - {court.courtName}</h3>
+              <p className="text-muted">{court.city}, {court.country}</p>
+              <p><strong>Description:</strong> {court.description}</p>
+              <p><FaPhoneAlt className="me-1" /><strong>Contact:</strong> {court.mobile}</p>
+
+              <div className="mt-3">
+                <h4 className="text-warning">{averageRating} <FaStar /></h4>
+                <p>Total Reviews: {reviewStats.total_reviews || 0}</p>
+                <Button
+                  variant="link"
+                  className="text-decoration-none"
+                  onClick={handleViewReviews}
+                  //style={{ cursor: isLoggedInPlayer() ? 'pointer' : 'not-allowed', color: isLoggedInPlayer() ? '#007bff' : '#6c757d' }}
+                >
+                  <FaStar /> {'Add or View Reviews'}
+                </Button>
+              </div>
+            </Card.Body>
+
+            <Card.Footer className="bg-white border-0 text-center">
+              <p>
+                <span className="badge bg-danger px-3 py-2 fs-6">
+                  <MdOutlineSportsScore className="me-1" /> {court.sport}
+                </span>
+              </p>
+              <div className="badge bg-primary text-white fs-5 p-3 my-2 rounded-pill">
+                <strong>Price:</strong> {court.hourly_rate} LKR / Hr
+              </div>
+              <p><strong>Size:</strong> {court.size} sq ft</p>
+            </Card.Footer>
+          </Card>
         </Col>
       </Row>
-
       <Row>
         <Col className="text-center my-4">
           <hr/>
           <div className="bg-light p-3 rounded d-flex flex-column align-items-center">
             <h4 className="text-center mb-3">Weekly Availability</h4>
-            <table className="table table-bordered text-center" style={{ width: '60%' }}>
-              <thead className="table-secondary">
+            <table className="table table-hover shadow-sm rounded text-center w-75 mx-auto">
+              <thead className="table-light">
                 <tr>
                   <th>Day</th>
-                  <th>Opening Time</th>
-                  <th>Closing Time</th>
+                  <th>Opening</th>
+                  <th>Closing</th>
                 </tr>
               </thead>
               <tbody>
-                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => {
-                  const dayInfo = availability[day];
+                {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => {
+                  const info = availability[day];
+                  const isToday = day === new Date().toLocaleString('en-US', { weekday: 'long' });
                   return (
-                    <tr key={day} className={day === new Date().toLocaleString('en-US', { weekday: 'long' }) ? 'table-primary' : ''}>
+                    <tr key={day} className={isToday ? 'table-primary' : ''}>
                       <td>{day}</td>
-                      <td>{dayInfo?.open || 'Closed'}</td>
-                      <td>{dayInfo?.close || 'Closed'}</td>
+                      <td>{info?.open || 'Closed'}</td>
+                      <td>{info?.close || 'Closed'}</td>
                     </tr>
                   );
                 })}
@@ -370,21 +396,30 @@ const handleViewReviews = () => {
         </Row>
         <Row>
         <Col md={6}>
-          <h5>Make a Booking</h5>
-          <Form>
-            <Form.Group className="mb-2">
-              <Form.Label>Select a date</Form.Label>
-              <Form.Control type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
-            </Form.Group>
-
+          <Card className="modern-card p-4">
+            <Card.Body>
+              <h5>Make a Booking</h5>
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>Select Date</Form.Label>
+                  <DatePicker
+                      selected={selectedDate}
+                      onChange={(date) => setSelectedDate(date)}
+                      className="form-control"
+                      placeholderText="Select a date"
+                      minDate={new Date()}
+                      dateFormat="yyyy-MM-dd"
+                    />                
+                </Form.Group>
             <Form.Group>
               <Form.Label>Start Time</Form.Label>
               <Form.Select value={startTime} onChange={handleStartTimeChange}>
                 <option value="">Select Start Time</option>
                 {(() => {
                   if (!selectedDate) return null;
-
-                  const dayName = new Date(selectedDate).toLocaleString('en-US', { weekday: 'long' });
+                  const formattedDate = selectedDate.toLocaleDateString(); 
+                  const dateParts = convertToYMD(formattedDate);
+                  const dayName = new Date(dateParts).toLocaleString('en-US', { weekday: 'long' });
                   const dayAvail = availability[dayName];
                   if (!dayAvail) return null;
 
@@ -423,8 +458,10 @@ const handleViewReviews = () => {
                 <option value="">Select Duration</option>
                 {(() => {
                   if (!startTime || !selectedDate) return null;
+                  const formattedDate = selectedDate.toLocaleDateString();
+                  const dateParts = convertToYMD(formattedDate);
 
-                  const dayName = new Date(selectedDate).toLocaleString('en-US', { weekday: 'long' });
+                  const dayName = new Date(dateParts).toLocaleString('en-US', { weekday: 'long' });
                   const dayAvail = availability[dayName];
                   if (!dayAvail) return null;
 
@@ -459,12 +496,9 @@ const handleViewReviews = () => {
             </Form.Group>
 
             <Button
-              variant="primary"
-              disabled={
-                !selectedDate || !selectedTime || !duration || isDayClosed || !isLoggedInPlayer()
-              }
+              className="w-100 rounded-pill mt-3"
+              disabled={!selectedDate || !selectedTime || !duration || isDayClosed || !isLoggedInPlayer()}
               onClick={handleBooking}
-              className="mt-3"
             >
               Reserve and Book Now
             </Button>
@@ -485,16 +519,16 @@ const handleViewReviews = () => {
 
             {isDayClosed && <p className="text-danger mt-2">The selected day is closed for bookings.</p>}
           </Form>
+          </Card.Body>
+        </Card>
         </Col>
         <Col md={6}>
-          <h5>Booking Summary</h5>
-          <Card className="shadow-sm">
-            <Card.Body>
-              <p><strong>Date:</strong> {selectedDate || 'Not selected'}</p>
-              <p><strong>Time:</strong> {selectedTime || 'Not selected'}</p>
-              <p><strong>Duration:</strong> {duration ? `${duration} Hour(s)` : 'Not selected'}</p>
-              <p><strong>Total Cost:</strong> {selectedTime && duration ? `${court.hourly_rate * duration} LKR` : 'N/A'}</p>
-            </Card.Body>
+          <Card className="booking-summary-card mt-3">
+            <h5>Booking Summary</h5>
+            <p><strong>Date:</strong> {selectedDate ? selectedDate.toLocaleDateString() : 'Not selected'}</p>
+            <p><strong>Time:</strong> {selectedTime || 'Not selected'}</p>
+            <p><strong>Duration:</strong> {duration ? `${duration} Hour(s)` : 'Not selected'}</p>
+            <p className="fs-5"><strong>Total Cost:</strong> {selectedTime && duration ? `${court.hourly_rate * duration} LKR` : 'N/A'}</p>
           </Card>
         </Col>
         </Row>

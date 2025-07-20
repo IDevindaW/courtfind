@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { changePassword } from "../services/playerAuthService";
 import { useNavigate } from "react-router-dom";
-import { Form, Button, Container, Alert, Row, Col, InputGroup } from "react-bootstrap";
+import { Form, Button, Container, Alert, Row, Col, InputGroup ,ProgressBar} from "react-bootstrap";
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
 import Sidebar from "../components/playerSidebar";
@@ -16,6 +16,7 @@ const PlayerChangePassword = () => {
     const [message, setMessage] = useState("");
     const [variant, setVariant] = useState("danger"); // Alert type
     const navigate = useNavigate();
+    const [passwordStrength, setPasswordStrength] = useState({ label: "", variant: "", percent: 0 });
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
@@ -26,6 +27,20 @@ const PlayerChangePassword = () => {
             return;
         }
 
+        // ✅ Declare password rules FIRST
+    const hasUpper = /[A-Z]/.test(newPassword);
+    const hasLower = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+    const isLongEnough = newPassword.length >= 8;
+
+         // Validate password strength
+        if (!(hasUpper && hasLower && hasNumber && hasSpecial && isLongEnough)) {
+        setMessage("Password must include uppercase, lowercase, number, special character and be at least 8 characters long.");
+        setVariant("danger");
+        return;
+        
+    }
         try {
             await changePassword(currentPassword, newPassword);
             setMessage("Password changed successfully!");
@@ -36,10 +51,24 @@ const PlayerChangePassword = () => {
 
             setTimeout(() => navigate("/player-dashboard"), 2000); // Redirect after success
         } catch (error) {
-            setMessage(error);
+            setMessage(error?.response?.data?.message || "Failed to change password.");
             setVariant("danger");
-        }
+        } 
     };
+
+        const getPasswordStrength = (password) => {
+        let strength = 0;
+
+        if (password.length >= 8) strength++; // Length
+        if (/[A-Z]/.test(password)) strength++; // Uppercase letter
+        if (/[a-z]/.test(password)) strength++; // Lowercase letter
+        if (/[0-9]/.test(password)) strength++; // Number
+        if (/[^A-Za-z0-9]/.test(password)) strength++; // Special character
+
+        if (strength <= 2) return { label: "Weak", variant: "danger", percent: 33 };
+        if (strength === 3 || strength === 4) return { label: "Moderate", variant: "warning", percent: 66 };
+        if (strength === 5) return { label: "Strong", variant: "success", percent: 100 };
+        };
 
     return (
         <Container className="min-vh-100 d-flex flex-column  align-items-center">
@@ -82,7 +111,11 @@ const PlayerChangePassword = () => {
                                     type={showNewPassword ? "text" : "password"}
                                     placeholder="New Password"
                                     value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setNewPassword(value);
+                                        setPasswordStrength(getPasswordStrength(value));
+                                    }}
                                     required
                                 />
                                 <Button 
@@ -92,6 +125,18 @@ const PlayerChangePassword = () => {
                                     {showNewPassword ? <FaRegEyeSlash /> : <FaRegEye />}
                                 </Button>
                                 </InputGroup>
+                                {newPassword && (
+                                    <ProgressBar
+                                        striped
+                                        now={passwordStrength.percent}
+                                        variant={passwordStrength.variant}
+                                        className="mt-2"
+                                        label={passwordStrength.label}
+                                    />
+                                )}
+                                <Form.Text>
+                                    Use at least 8 characters, including uppercase, lowercase, numbers, and symbols.
+                                </Form.Text>
                             </Form.Group>
 
 

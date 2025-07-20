@@ -73,7 +73,7 @@ const PlayerProfile = () => {
 
         try {
             const imageUrl = await uploadProfileImage(file, authToken); // Upload image to backend
-            setProfileImage(`http://localhost:8000${imageUrl}`);// Set image URL to display
+            setProfileImage(`http://localhost:8000${imageUrl}?t=${Date.now()}`);// Set image URL to display
         } catch (error) {
             console.error("Error uploading image:", error);
         }
@@ -137,7 +137,23 @@ const PlayerProfile = () => {
 
                         <Form.Group>
                             <Form.Label>Province</Form.Label>
-                            <Form.Control type="text" name="province" value={profile.province} onChange={handleChange} disabled={!editing} />
+                            <Form.Select
+        name="province"
+        value={profile.province}
+        onChange={handleChange}
+        disabled={!editing}
+    >
+        <option value="">Select Province</option>
+        <option value="Central">Central</option>
+        <option value="Eastern">Eastern</option>
+        <option value="Northern">Northern</option>
+        <option value="Southern">Southern</option>
+        <option value="Western">Western</option>
+        <option value="North Western">North Western</option>
+        <option value="North Central">North Central</option>
+        <option value="Uva">Uva</option>
+        <option value="Sabaragamuwa">Sabaragamuwa</option>
+    </Form.Select>
                         </Form.Group>
                         <br />
 

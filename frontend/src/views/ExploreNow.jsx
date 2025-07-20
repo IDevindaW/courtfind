@@ -26,9 +26,9 @@ const ExploreNow = () => {
                     //console.log("Fetching sport for sportId:", sportId); // Debug log
                     const response = await fetch(`http://localhost:8000/common/sport`);
                     const sports = await response.json();
-                    console.log("Sports data:", sports); // Debug log
+                    //console.log("Sports data:", sports); // Debug log
                     updatedSport = sports.find(s => s.id === parseInt(sportId))?.name || "";
-                    console.log("Mapped sport name:", updatedSport); // Debug log
+                    //console.log("Mapped sport name:", updatedSport); // Debug log
                     if (!updatedSport) {
                         console.warn("No sport name found for sportId:", sportId);
                     }
@@ -40,9 +40,9 @@ const ExploreNow = () => {
 
             // Wait for filters to update before searching
             if (updatedSport || venue) {
-                console.log("Searching with filters:", { sport: updatedSport, venue }); // Debug log
+                //console.log("Searching with filters:", { sport: updatedSport, venue }); // Debug log
                 const data = await searchArenas({ sport: updatedSport, venue });
-                console.log("Search results:", data); // Debug log
+                //console.log("Search results:", data); // Debug log
                 setArenas(data);
             } else {
                 const data = await getAllArenas();
@@ -61,58 +61,115 @@ const ExploreNow = () => {
         navigate(`/view/${courtId}`);
     };
 
+    const handleClearFilters = async () => {
+    setFilters({ sport: "", venue: "" });
+    setSearchParams({});
+    const data = await getAllArenas();
+    setArenas(data);
+    };
+
+
     return (
-        <Container className="py-4 px-5">
-            <Row className="my-3 text-center">
-                <h2>Explore your desired Arenas</h2>
+        <>
+        <style>
+                {`
+                .card-title {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                }
+
+                .card-subtitle {
+                    font-size: 0.9rem;
+                }
+
+                .card:hover {
+                    transform: translateY(-5px);
+                    transition: 0.3s ease;
+                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+                }
+                `}
+            </style>
+        <Container className="py-5">
+            <Row className="justify-content-center text-center mb-4">
+                <h2 className="fw-bold display-6">🏟️ Explore Arenas & Courts Near You</h2>
+                <p className="text-muted">Search by sport or location to find your ideal spot</p>
             </Row>
 
-            <Row className="my-3 w-75 mx-auto align-items-center"> 
-                <Col md={5}>
+            {/* Search Filters */}
+            <Row className="justify-content-center mb-5">
+                <Col md={4} className="mb-2">
                     <Form.Control
-                        placeholder="Sport"
+                        placeholder="e.g. Football, Badminton"
                         value={filters.sport}
                         onChange={(e) => setFilters({ ...filters, sport: e.target.value })}
+                        className="rounded-pill shadow-sm"
                     />
                 </Col>
-                <Col md={5}>
+                <Col md={4} className="mb-2">
                     <Form.Control
-                    placeholder="Enter a venue or city"
-                    value={filters.venue}
-                    onChange={(e) => setFilters({ ...filters, venue: e.target.value })}
-                />
+                        placeholder="Enter a city or venue"
+                        value={filters.venue}
+                        onChange={(e) => setFilters({ ...filters, venue: e.target.value })}
+                        className="rounded-pill shadow-sm"
+                    />
                 </Col>
-                <Col md={2}>
-                    <Button variant="primary" onClick={handleSearch}>
-                        <FaSearch />
+                <Col md="auto" className="mb-2">
+                    <Button variant="dark" onClick={handleSearch} className="px-4 py-2 rounded-pill">
+                        <FaSearch className="me-2" />
+                        Search
+                    </Button>
+                    <Button variant="outline-secondary" onClick={handleClearFilters} className="px-4 py-2 rounded-pill">
+                        View All
                     </Button>
                 </Col>
             </Row>
 
+            {/* Arena Cards */}
             <Row>
-                {arenas.map((arena) => (
-                    <Col md={4} key={arena.id} className="mb-4">
-                        <Card className="shadow-sm">
-                            <Card.Img variant="top" 
-                                src={`http://localhost:8000${arena.image_url}`} 
-                                style={{ height: "200px", width: "100%", objectFit: "cover" }}
-                            />
-                            <Card.Body>
-                                <Card.Title>{arena.arenaName} <br/> {arena.courtName}</Card.Title>
-                                <Card.Text>{arena.city}, {arena.country}</Card.Text>
-                                <Card.Text>
-                                    <span role="img" aria-label="sport"><MdOutlineSportsScore /></span> {arena.sport}
-                                </Card.Text>
-                                <Button variant="primary" onClick={() => handleBookNow(arena.courtId)}>
-                                    Book Now
-                                </Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
+                {arenas.length === 0 ? (
+                    <div className="text-center text-muted fs-5">No arenas found. Try different filters.</div>
+                ) : (
+                    arenas.map((arena) => (
+                        <Col md={4} sm={6} key={arena.id} className="mb-4 d-flex">
+                            <Card className="shadow-sm w-100 rounded-4 border-0 overflow-hidden">
+                                <div style={{ height: "200px", overflow: "hidden" }}>
+                                    <Card.Img
+                                        variant="top"
+                                        src={`http://localhost:8000${arena.image_url}`}
+                                        style={{ objectFit: "cover", height: "100%", width: "100%" }}
+                                    />
+                                </div>
+                                <Card.Body className="d-flex flex-column justify-content-between">
+                                    <div>
+                                        <Card.Title className="fw-semibold fs-5">{arena.arenaName}</Card.Title>
+                                        <Card.Subtitle className="mb-2 text-muted small">
+                                            {arena.courtName} • {arena.city}, {arena.country}
+                                        </Card.Subtitle>
+                                        <Card.Text className="text-secondary mt-2">
+                                            <MdOutlineSportsScore className="me-2" />
+                                            {arena.sport}
+                                        </Card.Text>
+                                    </div>
+                                    <div className="text-end">
+                                        <Button
+                                            variant="outline-dark"
+                                            size="sm"
+                                            className="rounded-pill px-4 mt-3"
+                                            onClick={() => handleBookNow(arena.courtId)}
+                                        >
+                                            Book Now
+                                        </Button>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))
+                )}
             </Row>
         </Container>
-    );
+        </>
+);
+
 };
 
 export default ExploreNow;

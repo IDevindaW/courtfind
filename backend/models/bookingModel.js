@@ -2,7 +2,9 @@ const db = require("../config/db");
 
 const PlayerBooking = {
     getBookingsByPlayerId: (playerId, callback) => {
-        const query = "SELECT a.name, b.booking_date, b.start_time, b.end_time, b.status, a.image_url FROM bookings b JOIN arenas a ON b.arenaId = a.arenaId WHERE b.playerId = ?;";
+        const query = `SELECT a.name,c.name AS courtName, b.booking_date, b.start_time, b.end_time, b.status, a.image_url, b.payment_status
+                        FROM bookings b, arenas a, courts c
+                        WHERE b.arenaId = a.arenaId AND b.courtId = c.courtId AND b.playerId = ?;`;
         db.query(query, [playerId], callback);
     },
     setABooking: (bookingData, callback) => {
@@ -64,25 +66,31 @@ const PlayerBooking = {
         },
 
     getOwnerIdForBooking: (bookingId, callback) => {
-        const query = "SELECT ownerId FROM bookings WHERE bookingId = ?;";
+        const query = "SELECT ownerId, arenaId FROM bookings WHERE bookingId = ?;";
         db.query(query, [bookingId], (err, results) => {
             if (err) {
                 return callback(err);
             }
             if (results.length > 0) {
-                return callback(null, results[0].ownerId);
+                return callback(null, results[0]);
             } else {
                 return callback(new Error("Booking not found"));
             }
         });
     },
 
-    updatePaymentsTable: (bookingId, paymentDesc, total, payment_method, ownerId, callback) => {
+    updatePaymentsTable: (bookingId, paymentDesc, total, payment_method, ownerId, arenaId, playerId, callback) => {
         const query = `
-            INSERT INTO payments (bookingId, paymentDesc, amount, payment_method, ownerId)
-            VALUES (?, ?, ?, ?, ?);
-        `;
-        db.query(query, [bookingId, paymentDesc, total, payment_method, ownerId], callback);
+      INSERT INTO payments (amount, payment_method, bookingId, arenaId, ownerId, playerId, paymentDesc)
+      VALUES (?, ?, ?, ?, ?, ?, ?);
+    `;
+    db.query(query, [total, payment_method, bookingId, arenaId, ownerId, playerId, paymentDesc], (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return callback(err);
+      }
+      callback(null, results);
+    });
     }
 
     

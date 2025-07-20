@@ -324,7 +324,7 @@ const MyProfitPage = () => {
               <Col>
                 <Card className="shadow-sm border-0">
                   <Card.Body>
-                    <h4 className="mb-3 fw-bold">Recent Transactions</h4>
+                    <h4 className="mb-3 fw-bold">Revenue from Recent Bookings</h4>
                     <Table hover>
                       <thead>
                         <tr>
@@ -366,7 +366,7 @@ const MyProfitPage = () => {
               <Col>
                 <Card className="shadow-sm border-0">
                   <Card.Body>
-                    <h4 className="mb-3 fw-bold">Payment History</h4>
+                    <h4 className="mb-3 fw-bold">Payments Done by Owner</h4>
                     <Table hover>
                       <thead>
                         <tr>

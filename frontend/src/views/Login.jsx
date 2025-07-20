@@ -5,6 +5,7 @@ import { Form, Button, Container, Alert, Row, Col, InputGroup } from "react-boot
 import { useAuth } from "../contexts/AuthContext";
 import { jwtDecode } from "jwt-decode";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+import { setOwnerLoginCount } from "../services/ownerInsights";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -35,7 +36,7 @@ const Login = () => {
   
       const userRole = decodedToken.role;
       setSuccessMessage("Login successful!");
-      setErrorMessage(""); // Clear any previous error message
+      setErrorMessage("");
 
   
       // Check for redirectVenue or redirectAfterLogin
@@ -58,6 +59,7 @@ const Login = () => {
       } else if (userRole === "Player") {
         navigate("/player-dashboard");
       } else if (userRole === "Owner") {
+        const ownerLoginCount = await setOwnerLoginCount(token);
         navigate("/owner-dashboard");
       } else if (userRole === "Admin") {
         navigate("/admin-dashboard");

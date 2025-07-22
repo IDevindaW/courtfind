@@ -28,7 +28,7 @@ const OwnerProfile = () => {
           getOwnerLoginTimes(authToken)
         ]);
         setProfile(profileData);
-        setProfileImage(`http://localhost:8000${imageUrl}`);
+        setProfileImage(`${process.env.REACT_APP_API_BASE_URL}${imageUrl}`);
         setActivitySummary(summary);
         setLoginTimes(loginData.loginByHour);
       } catch (error) {
@@ -55,7 +55,7 @@ const OwnerProfile = () => {
     if (!file) return;
     try {
       const imageUrl = await uploadProfileImage(file, authToken);
-      setProfileImage(`http://localhost:8000${imageUrl}`);
+      setProfileImage(`${process.env.REACT_APP_API_BASE_URL}${imageUrl}`);
     } catch (error) {
       console.error("Upload error:", error);
     }

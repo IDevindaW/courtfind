@@ -104,7 +104,7 @@ const PendingArenasPage = () => {
                         <td>
                         {arena.image_url ? (
                             <img
-                            src={`http://localhost:8000${arena.image_url}`}
+                            src={`${process.env.REACT_APP_API_BASE_URL}${arena.image_url}`}
                             alt={arena.arenaName}
                             width="100"
                             height="70"

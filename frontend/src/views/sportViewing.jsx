@@ -55,8 +55,10 @@ const ViewingPage = () => {
   const fetchBookedTimes = async () => {
     if (!selectedDate || !courtId) return;
     const formattedDate = selectedDate.toLocaleDateString(); 
+    console.log("The first conversion is: ",formattedDate);
     // Convert date to YYYY-MM-DD format
     const dateParts = convertToYMD(formattedDate);
+    console.log("The second conversion is: ",dateParts);
     const response = await getBookingTimesByCourtId(courtId, dateParts);
     if (Array.isArray(response)) {
       setBookedSlots(response);
@@ -253,7 +255,7 @@ const handleViewReviews = () => {
                   <Carousel.Item key={idx}>
                     <img
                       className="d-block w-100"
-                      src={`http://localhost:8000/${img}`}
+                      src={`${process.env.REACT_APP_API_BASE_URL}/${img}`}
                       alt={`Court image ${idx + 1}`}
                       style={{ height: '400px', objectFit: 'cover', borderRadius: '15px' }}
                     />

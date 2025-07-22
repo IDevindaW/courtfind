@@ -41,7 +41,7 @@ const PlayerProfile = () => {
             try {
                 const imageUrl = await getProfileImage(authToken); // Get image URL from backend
                 console.log("The image URL: ", imageUrl);
-                setProfileImage(`http://localhost:8000${imageUrl}`); // Prepend backend host
+                setProfileImage(`${process.env.REACT_APP_API_BASE_URL}${imageUrl}`); // Prepend backend host
             } catch (error) {
                 console.error("Error fetching profile image:", error);
             }
@@ -73,7 +73,7 @@ const PlayerProfile = () => {
 
         try {
             const imageUrl = await uploadProfileImage(file, authToken); // Upload image to backend
-            setProfileImage(`http://localhost:8000${imageUrl}?t=${Date.now()}`);// Set image URL to display
+            setProfileImage(`${process.env.REACT_APP_API_BASE_URL}${imageUrl}?t=${Date.now()}`);// Set image URL to display
         } catch (error) {
             console.error("Error uploading image:", error);
         }

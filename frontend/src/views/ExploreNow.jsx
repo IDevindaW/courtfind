@@ -24,7 +24,7 @@ const ExploreNow = () => {
             if (sportId) {
                 try {
                     //console.log("Fetching sport for sportId:", sportId); // Debug log
-                    const response = await fetch(`http://localhost:8000/common/sport`);
+                    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/common/sport`);
                     const sports = await response.json();
                     //console.log("Sports data:", sports); // Debug log
                     updatedSport = sports.find(s => s.id === parseInt(sportId))?.name || "";
@@ -135,7 +135,7 @@ const ExploreNow = () => {
                                 <div style={{ height: "200px", overflow: "hidden" }}>
                                     <Card.Img
                                         variant="top"
-                                        src={`http://localhost:8000${arena.image_url}`}
+                                        src={`${process.env.REACT_APP_API_BASE_URL}${arena.image_url}`}
                                         style={{ objectFit: "cover", height: "100%", width: "100%" }}
                                     />
                                 </div>

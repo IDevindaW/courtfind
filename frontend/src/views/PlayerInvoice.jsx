@@ -29,7 +29,7 @@ const PlayerInvoices = () => {
 
     // Handle file download with file existence check
     const handleDownload = async (url, name, bookingDate) => {
-        const fullUrl = `http://localhost:8000${url}`; // Full file path
+        const fullUrl = `${process.env.REACT_APP_API_BASE_URL}${url}`; // Full file path
 
         try {
             const response = await fetch(fullUrl, { method: 'HEAD' });
@@ -81,7 +81,7 @@ const PlayerInvoices = () => {
                                             {/* Arena Image */}
                                             <Col md={3}>
                                                 <Card.Img
-                                                    src={`http://localhost:8000${invoice.image_url}`}
+                                                    src={`${process.env.REACT_APP_API_BASE_URL}${invoice.image_url}`}
                                                     alt="Arena"
                                                     style={{ height: '100%', objectFit: 'cover' }}
                                                 />

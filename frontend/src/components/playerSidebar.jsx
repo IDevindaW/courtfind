@@ -25,7 +25,7 @@ const Sidebar = () => {
                     const data = await getPlayerProfile(authToken);
                     setProfile(data);
                     const imageUrl = await getProfileImage(authToken);
-                    setProfileImage(`http://localhost:8000${imageUrl}`);
+                    setProfileImage(`${process.env.REACT_APP_API_BASE_URL}${imageUrl}`);
                 } catch (error) {
                     console.error("Error fetching profile:", error);
                 }
